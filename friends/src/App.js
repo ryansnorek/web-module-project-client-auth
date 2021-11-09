@@ -1,26 +1,69 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route} from 'react-router-dom';
+import { BrowserRouter, Route, Link, Switch, useHistory} from 'react-router-dom';
+import axios from "axios";
 
+const Login = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [credentials, setCredentials] = useState({ username: "", password: "" });
+  const history = useHistory();
 
-const Login = ()=> {
-  return (<h2>Login</h2>)
-};
-const handleSubmit = e => {
-  e.preventDefault();
+  const handleSubmit = e => {
+    e.preventDefault();
+    axios.post("http://localhost:5000/api/login", credentials)
+      .then(res => {
+        setIsLoading(true);
+        const token = res.data.payload;
+        localStorage.setItem("token", token);
+        history.push("/friends")
+      })
+      .catch(err => {
+        console.error("ERROR ", err);
+      })
+      .finally(() => setIsLoading(false));
+    };
 
-};
-
-function App() {
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setCredentials({ ...credentials, [name]: value })
+  };
+    
   return (
-    <div className="App">
-      <h2>Client Auth Project</h2>
+    <div>
       <form onSubmit={handleSubmit}>
-        <input placeholder="username"/>
-        <input placeholder="password"/>
+        <input 
+          name="username"
+          type="text"
+          placeholder="username"
+          value={credentials.username}
+          onChange={handleChange}
+        />
+        <input 
+          name="password"
+          type="password"
+          placeholder="password"
+          value={credentials.password}
+          onChange={handleChange}
+        />
         <button>Login</button>
       </form>
     </div>
+  )
+};
+
+
+function App() {
+  return (
+    <BrowserRouter>
+    <div className="App">
+      <h2>Client Auth Project</h2>
+      <Switch>
+        <Route path="/" component={Login}/>
+        <Route path="/login" component={Login}/>
+      </Switch>
+
+    </div>
+    </BrowserRouter>
   );
 }
 
