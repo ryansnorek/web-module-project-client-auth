@@ -8,6 +8,14 @@ import {
       } 
 from 'react-router-dom';
 
+// AUTHORIZATION
+const authorization = () => {
+  const { token } = localStorage;
+  return axios.create({
+    headers: { authorization: token },
+    baseURL: "http://localhost:5000/api"
+  });
+};
 
 // PRIVATE ROUTE - FRIENDS LIST //
 const PrivateRoute = props => {
@@ -18,8 +26,26 @@ const PrivateRoute = props => {
   }} />
 };
 const FriendsList = () => {
-  
-  return (<h1>Friends</h1>)
+  const [friends, setFriends] = useState([]);
+
+  authorization()
+    .get("/friends")
+    .then(res => {
+      setFriends(res.data)
+    })
+    .catch(err => console.log(err))
+  return (
+    <div>
+      <h1>Friends</h1>
+      {friends.map(friend => {
+        return (
+          <div>
+            <p>{friend.name}</p>
+          </div>
+        )
+      })}
+    </div>
+  );
 };
 
 // LOGIN AUTHENTICATION //
@@ -30,11 +56,12 @@ const Login = () => {
 
   const handleSubmit = e => {
     e.preventDefault();
+    const { setItem } = localStorage;
+
     axios.post("http://localhost:5000/api/login", credentials)
       .then(res => {
         setIsLoading(true);
-        const token = res.data.payload;
-        localStorage.setItem("token", token);
+        setItem("token", res.data.payload);
         setTimeout(() => {
           history.push("/friends")
         }, 1000)
