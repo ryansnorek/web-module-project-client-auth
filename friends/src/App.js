@@ -5,13 +5,17 @@ import { BrowserRouter as Router, Route} from 'react-router-dom';
 
 const Login = ()=> {
   return (<h2>Login</h2>)
-}
+};
+const handleSubmit = e => {
+  e.preventDefault();
+
+};
 
 function App() {
   return (
     <div className="App">
       <h2>Client Auth Project</h2>
-      <form>
+      <form onSubmit={handleSubmit}>
         <input placeholder="username"/>
         <input placeholder="password"/>
         <button>Login</button>
