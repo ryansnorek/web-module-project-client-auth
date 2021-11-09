@@ -11,6 +11,11 @@ function App() {
   return (
     <div className="App">
       <h2>Client Auth Project</h2>
+      <form>
+        <input placeholder="username"/>
+        <input placeholder="password"/>
+        <button>Login</button>
+      </form>
     </div>
   );
 }
