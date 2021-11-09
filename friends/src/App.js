@@ -1,8 +1,28 @@
 import React, { useState } from 'react';
 import './App.css';
-import { BrowserRouter, Route, Link, Switch, useHistory} from 'react-router-dom';
 import axios from "axios";
+import { 
+        BrowserRouter, 
+        Route, Link, Switch, 
+        useHistory, Redirect 
+      } 
+from 'react-router-dom';
 
+
+// PRIVATE ROUTE - FRIENDS LIST //
+const PrivateRoute = props => {
+  const { component: Component, ...rest } = props;
+  return <Route {...rest} render={ () => {
+        return localStorage.getItem("token") ? 
+              <FriendsList/> : <Redirect path="/login"/>
+  }} />
+};
+const FriendsList = () => {
+  
+  return (<h1>Friends</h1>)
+};
+
+// LOGIN AUTHENTICATION //
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [credentials, setCredentials] = useState({ username: "", password: "" });
@@ -15,19 +35,21 @@ const Login = () => {
         setIsLoading(true);
         const token = res.data.payload;
         localStorage.setItem("token", token);
-        history.push("/friends")
+        setTimeout(() => {
+          history.push("/friends")
+        }, 1000)
       })
       .catch(err => {
         console.error("ERROR ", err);
       })
       .finally(() => setIsLoading(false));
     };
-
   const handleChange = e => {
     const { name, value } = e.target;
     setCredentials({ ...credentials, [name]: value })
   };
-    
+
+  if (isLoading) return <h3>Loading...</h3>
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -50,18 +72,19 @@ const Login = () => {
     </div>
   )
 };
-
-
+// ROUTES
 function App() {
   return (
     <BrowserRouter>
     <div className="App">
       <h2>Client Auth Project</h2>
+      <Link to="/login">Login</Link>
+      {}
       <Switch>
-        <Route path="/" component={Login}/>
+        <Route exact path="/" component={Login}/>
         <Route path="/login" component={Login}/>
+        <PrivateRoute exact path="/friends" component={FriendsList}/>
       </Switch>
-
     </div>
     </BrowserRouter>
   );
