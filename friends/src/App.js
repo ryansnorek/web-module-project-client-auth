@@ -48,16 +48,16 @@ const FriendsList = () => {
       .finally(setNewFriend(initialFormData))
   }
   return (
-    <div>
+    <div id="add-peep">
       <form onSubmit={handleSubmit}>
-        <label>New Friend</label>
         <input name="name" type="text" placeholder="name" onChange={handleChange}/>
         <input name="age" type="text" placeholder="age" onChange={handleChange}/>
         <input name="email" type="email" placeholder="email" onChange={handleChange}/>
-        <button>Add New Friend</button>
+        <button>new peep</button>
       </form>
-      <h1>Friends</h1>
-      {friends.map(friend => <p key={friend.id}>{friend.name}</p>)}
+      <div>
+        {friends.map(friend => <p key={friend.id}>{friend.name}</p>)}
+      </div>
     </div>
   );
 };
@@ -115,7 +115,7 @@ function App() {
   return (
     <BrowserRouter>
     <div className="App">
-      <h2>Client Auth Project</h2>
+      <h2>peeps</h2>
       <Link to="/login">Login</Link>
       {}
       <Switch>
