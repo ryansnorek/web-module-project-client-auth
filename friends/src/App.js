@@ -17,16 +17,17 @@ const authorization = () => {
   });
 };
 
-// PRIVATE ROUTE - FRIENDS LIST //
+// PRIVATE ROUTE & FRIENDS LIST //
 const PrivateRoute = props => {
   const { component: Component, ...rest } = props;
   return <Route {...rest} render={ () => {
-        return localStorage.getItem("token") ? 
-              <FriendsList/> : <Redirect path="/login"/>
+        return localStorage.getItem("token") ? <FriendsList/> : <Redirect path="/login"/>
   }} />
 };
 const FriendsList = () => {
+  const initialFormData = { name: "", age: "", email: "" }
   const [friends, setFriends] = useState([]);
+  const [newFriend, setNewFriend] = useState(initialFormData)
 
   authorization()
     .get("/friends")
@@ -34,16 +35,29 @@ const FriendsList = () => {
       setFriends(res.data)
     })
     .catch(err => console.log(err))
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setNewFriend({ ...newFriend, [name]: value });
+  };
+  const handleSubmit = e => {
+    e.preventDefault();
+    authorization().post("/friends", newFriend)
+      .then(res => console.log(res.data))
+      .catch(err => console.log(err))
+      .finally(setNewFriend(initialFormData))
+  }
   return (
     <div>
+      <form onSubmit={handleSubmit}>
+        <label>New Friend</label>
+        <input name="name" type="text" placeholder="name" onChange={handleChange}/>
+        <input name="age" type="text" placeholder="age" onChange={handleChange}/>
+        <input name="email" type="email" placeholder="email" onChange={handleChange}/>
+        <button>Add New Friend</button>
+      </form>
       <h1>Friends</h1>
-      {friends.map(friend => {
-        return (
-          <div>
-            <p>{friend.name}</p>
-          </div>
-        )
-      })}
+      {friends.map(friend => <p key={friend.id}>{friend.name}</p>)}
     </div>
   );
 };
@@ -56,12 +70,11 @@ const Login = () => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    const { setItem } = localStorage;
 
     axios.post("http://localhost:5000/api/login", credentials)
       .then(res => {
         setIsLoading(true);
-        setItem("token", res.data.payload);
+        localStorage.setItem("token", res.data.payload)
         setTimeout(() => {
           history.push("/friends")
         }, 1000)
@@ -80,9 +93,7 @@ const Login = () => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <input 
-          name="username"
-          type="text"
+        <input name="username" type="text"
           placeholder="username"
           value={credentials.username}
           onChange={handleChange}
